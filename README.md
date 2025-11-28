@@ -24,7 +24,7 @@
 1. 确保你的浏览器已安装 [Tampermonkey](https://www.tampermonkey.net/) 扩展或者[脚本猫](https://scriptcat.org/)
 2. 点击浏览器工具栏中的 Tampermonkey 图标
 3. 选择「添加新脚本」
-4. 将 `simple-read1.js` 文件的内容复制粘贴到编辑器中
+4. 将 `read.js` 文件的内容复制粘贴到编辑器中
 5. 点击「文件」→「保存」或使用快捷键 `Ctrl+S`
 6. 脚本将自动启用
 
