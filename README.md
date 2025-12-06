@@ -2,6 +2,9 @@
 
 简化版自动阅读脚本，支持多个网站的自动阅读和点赞功能。
 
+<img width="321" height="393" alt="image" src="https://github.com/user-attachments/assets/b8be8a6d-335f-4efa-834f-9d01375e02e7" />
+
+
 
 ## 功能特性
 
