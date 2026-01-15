@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Simple Auto Read
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.0.4
 // @description  简化版自动阅读脚本
 // @match        https://www.nodeloc.com/*
 // @match        https://linux.do/*
@@ -41,7 +41,7 @@
     };
     
     // 获取当前BASE_URL
-    const possibleBaseURLs = ["https://www.nodeloc.com", "https://linux.do"];
+    const possibleBaseURLs = ["https://www.nodeloc.com", "https://linux.do", "https://mjjbox.com"];
     const currentURL = window.location.href;
     let BASE_URL = possibleBaseURLs.find(url => currentURL.startsWith(url)) || possibleBaseURLs[0];
 
@@ -528,7 +528,7 @@
                 if (topicList.length === 0) {
                     updateStatus('正在拉取最新文章...');
                     // 直接跳转到最新文章页面
-                    window.location.href = `${BASE_URL}/latest`;
+                    window.location.href = `${BASE_URL}/new`;
                     return true;
                 }
             }
@@ -552,21 +552,21 @@
     // 获取最新话题
     function getLatestTopic() {
         return new Promise(resolve => {
-            let page = parseInt(GM_getValue(prefix("latestPage")) || 0);
+            let page = 0; // 每次都从第1页开始获取，确保获取最新内容
             let list = [], done = false, retry = 0;
             const MAX_PAGES = 10;
+            const readHistory = JSON.parse(GM_getValue(prefix("readHistory")) || "[]");
             
             const fetchTopicPage = () => {
                 page++;
                 
                 if (page > MAX_PAGES) {
                     GM_setValue(prefix("topicList"), JSON.stringify(list));
-                    GM_setValue(prefix("latestPage"), page);
                     resolve();
                     return;
                 }
                 
-                const url = `${BASE_URL}/latest.json?no_definitions=true&page=${page}`;
+                const url = `${BASE_URL}/new.json?no_definitions=true&page=${page}`;
                 
                 // 检查jQuery是否可用
                 if (typeof $ === 'undefined') {
@@ -579,7 +579,7 @@
                                 
                                 if (topics.length) {
                                     topics.forEach(t => {
-                                        if (t.id && config.commentLimit > (t.posts_count || 0)) {
+                                        if (t.id && config.commentLimit > (t.posts_count || 0) && !readHistory.includes(t.id)) {
                                             list.push(t);
                                         }
                                     });
@@ -588,7 +588,6 @@
                                 
                                 if (done || topics.length === 0) {
                                     GM_setValue(prefix("topicList"), JSON.stringify(list));
-                                    GM_setValue(prefix("latestPage"), page);
                                     resolve();
                                 } else {
                                     fetchTopicPage();
@@ -616,7 +615,7 @@
                                 
                                 if (topics.length) {
                                     topics.forEach(t => {
-                                        if (t.id && config.commentLimit > (t.posts_count || 0)) {
+                                        if (t.id && config.commentLimit > (t.posts_count || 0) && !readHistory.includes(t.id)) {
                                             list.push(t);
                                         }
                                     });
@@ -625,7 +624,6 @@
                                 
                                 if (done || topics.length === 0) {
                                     GM_setValue(prefix("topicList"), JSON.stringify(list));
-                                    GM_setValue(prefix("latestPage"), page);
                                     resolve();
                                 } else {
                                     fetchTopicPage();
@@ -769,11 +767,7 @@
             stopScrolling();
         } else {
             if (!window.location.pathname.includes('/t/')) {
-                if (BASE_URL == "https://www.nodeloc.com") {
-                    window.location.href = "https://www.nodeloc.com/t/topic/54798/1";
-                } else {
-                    window.location.href = `${BASE_URL}/latest`;
-                }
+                window.location.href = `${BASE_URL}/new`;
             }
             startScrolling();
         }
